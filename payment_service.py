@@ -24,13 +24,14 @@ def process_payment(user: User, amount: float) -> dict:
     """
     Processes a payment for the given user.
     Returns a dict with 'success' and 'message' keys.
-
-    BUG: No null check on user.wallet — raises AttributeError for guest users.
     """
     if amount <= 0:
         return {"success": False, "message": "Amount must be positive"}
 
-    # BUG: Missing null check — crashes if user.wallet is None
+    # FIX: Guard against guest users who have no wallet configured
+    if user.wallet is None:
+        return {"success": False, "message": "No wallet configured for this user"}
+
     result = user.wallet.charge(amount)
 
     if result:
